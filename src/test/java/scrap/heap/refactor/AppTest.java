@@ -3,12 +3,104 @@
  */
 package scrap.heap.refactor;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
+
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
+
+import scrap.heap.refactor.service.CakePurchaseValidationException;
+
+@SpringBootTest
 public class AppTest {
-    @Test public void testAppHasAGreeting() {
-        App classUnderTest = new App();
-        assertNotNull("app should have a greeting", classUnderTest.getGreeting());
+	
+	@Autowired
+    ApplicationContext ctx;
+	
+    @Test
+    public void testHi() throws Exception {
+    	App runner = (App) ctx.getBean(CommandLineRunner.class);
+    	InputStream is = new ByteArrayInputStream("Hi".getBytes());
+    	assertThrows(JsonParseException.class, () -> {
+    		runner.purchase(is);
+        });
     }
+    
+    @Test
+    public void testMissingFlavor() throws Exception {
+    	String json = "{\"cakes\": \n" + 
+    			"	[{\"config\": {\"flavor\" : \"vanilla\", \"frostingFlavor\" : \"vanilla\", \"shape\" : \"square\", \"size\" : \"small\", \"color\" : \"brown\"}},\n" + 
+    			"	 {\"config\": {\"frostingFlavor\" : \"chocolate\", \"shape\" : \"circle\", \"size\" : \"small\", \"color\" : \"yellow\"}}], \n" + 
+    			" \"balloons\": \n" + 
+    			" 	[{\"config\": {\"color\" : \"red\", \"material\" : \"latex\"}, \"quantity\" : 1},\n" + 
+    			"	 {\"config\": {\"color\" : \"blue\", \"material\" : \"latex\"}, \"quantity\" : 2}]}\n" + 
+    			"";
+    	App runner = (App) ctx.getBean(CommandLineRunner.class);
+    	InputStream is = new ByteArrayInputStream(json.getBytes());
+    	assertThrows(CakePurchaseValidationException.class, () -> {
+    		runner.purchase(is);
+        });
+    }
+    
+    @Test
+    public void testInvalidFlavor() throws Exception {
+    	String json = "{\"cakes\": \n" + 
+    			"	[{\"config\": {\"flavor\" : \"lime\", \"frostingFlavor\" : \"vanilla\", \"shape\" : \"square\", \"size\" : \"small\", \"color\" : \"brown\"}},\n" + 
+    			"	 {\"config\": {\"frostingFlavor\" : \"chocolate\", \"shape\" : \"circle\", \"size\" : \"small\", \"color\" : \"yellow\"}}], \n" + 
+    			" \"balloons\": \n" + 
+    			" 	[{\"config\": {\"color\" : \"red\", \"material\" : \"latex\"}, \"quantity\" : 1},\n" + 
+    			"	 {\"config\": {\"color\" : \"blue\", \"material\" : \"latex\"}, \"quantity\" : 2}]}\n" + 
+    			"";
+    	App runner = (App) ctx.getBean(CommandLineRunner.class);
+    	InputStream is = new ByteArrayInputStream(json.getBytes());
+    	assertThrows(InvalidFormatException.class, () -> {
+    		runner.purchase(is);
+        });
+    }
+    
+    @Test
+    public void testInvalidCakeProperty() throws Exception {
+    	String json = "{\"cakes\": \n" + 
+    			"	[{\"config\": {\"height\" : 10, \"frostingFlavor\" : \"vanilla\", \"shape\" : \"square\", \"size\" : \"small\", \"color\" : \"brown\"}},\n" + 
+    			"	 {\"config\": {\"frostingFlavor\" : \"chocolate\", \"shape\" : \"circle\", \"size\" : \"small\", \"color\" : \"yellow\"}}], \n" + 
+    			" \"balloons\": \n" + 
+    			" 	[{\"config\": {\"color\" : \"red\", \"material\" : \"latex\"}, \"quantity\" : 1},\n" + 
+    			"	 {\"config\": {\"color\" : \"blue\", \"material\" : \"latex\"}, \"quantity\" : 2}]}\n" + 
+    			"";
+    	App runner = (App) ctx.getBean(CommandLineRunner.class);
+    	InputStream is = new ByteArrayInputStream(json.getBytes());
+    	assertThrows(UnrecognizedPropertyException.class, () -> {
+    		runner.purchase(is);
+        });
+    }
+    
+    @Test
+    public void testGoldenPath() throws Exception {
+    	String json = "{\"cakes\": \n" + 
+    			"	[{\"config\": {\"flavor\" : \"vanilla\", \"frostingFlavor\" : \"vanilla\", \"shape\" : \"square\", \"size\" : \"small\", \"color\" : \"brown\"}},\n" + 
+    			"	 {\"config\": {\"flavor\" : \"vanilla\", \"frostingFlavor\" : \"chocolate\", \"shape\" : \"circle\", \"size\" : \"small\", \"color\" : \"yellow\"}}], \n" + 
+    			" \"balloons\": \n" + 
+    			" 	[{\"config\": {\"color\" : \"red\", \"material\" : \"latex\"}, \"quantity\" : 1},\n" + 
+    			"	 {\"config\": {\"color\" : \"blue\", \"material\" : \"latex\"}, \"quantity\" : 2}]}\n" + 
+    			"";
+    	App runner = (App) ctx.getBean(CommandLineRunner.class);
+    	InputStream is = new ByteArrayInputStream(json.getBytes());
+    	assertDoesNotThrow(() -> {
+    		int count = runner.purchase(is);
+    		assertEquals(count, 4);
+        });
+    }
+    
+    
 }
