@@ -7,6 +7,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * 
+ * Represents the purchase order.
+ * 
+ * @author Chuck Lan
+ *
+ */
 @Builder
 @Data
 @AllArgsConstructor

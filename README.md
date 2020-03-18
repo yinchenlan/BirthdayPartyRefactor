@@ -8,6 +8,6 @@ functionality (unless you consider tests additional functionality), we're just c
  
 ## Getting Started
 
-Running the application: `gradle build test run`
+Running the application: `./gradlew bootRun -Pargs=goodinput.json`
 
 All output is written to the console.

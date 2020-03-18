@@ -1,0 +1,6 @@
+{"cakes": 
+	[{"config": {"flavor" : "vanilla", "frostingFlavor" : "vanilla", "shape" : "square", "size" : "small", "color" : "brown"}},
+	 {"config": {"flavor" : "vanilla", "frostingFlavor" : "chocolate", "shape" : "circle", "size" : "small", "color" : "yellow"}}], 
+ "balloons": 
+ 	[{"config": {"color" : "red", "material" : "latex"}, "quantity" : 1},
+	 {"config": {"color" : "blue", "material" : "latex"}, "quantity" : 2}]}

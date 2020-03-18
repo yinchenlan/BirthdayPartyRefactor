@@ -1,5 +1,7 @@
 package scrap.heap.refactor;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,14 @@ import scrap.heap.refactor.model.PurchaseOrder;
 import scrap.heap.refactor.service.BalloonOrderService;
 import scrap.heap.refactor.service.CakeOrderService;
 
+/**
+ * 
+ * Spring boot application which reads in serialized JSON of {@link PurchaseOrder}.  
+ * Validation is performed on the JSON.
+ * 
+ * @author Chuck Lan
+ *
+ */
 @SpringBootApplication
 @Log4j2
 public class App implements CommandLineRunner {
@@ -29,17 +39,6 @@ public class App implements CommandLineRunner {
 	public static void main(String[] args) {
         SpringApplication.run(App.class, args);
     }
-	
-	/*
-	 * public static void main(String[] args) {
-	 * 
-	 * //Place birthday party orders order("red", "mylar", "4", "chocolate",
-	 * "chocolate", "circle", "large", "brown" ); order("blue", "latex", "7",
-	 * "Vanilla", "chocelate", "square", "med", "brown" ); order("yellow", "mylar",
-	 * "4", "vanilla", "vanilla", "square", "small", "yellow" );
-	 * 
-	 * }
-	 */
 
 	public int purchase(InputStream in) throws Exception {
 		int count = 0;
@@ -58,11 +57,18 @@ public class App implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) {
-		try {
-			purchase(System.in);
+		if (args.length != 1) {
+			System.out.println("Please specify path to JSON file.");
+			return;
+		}
+		String pathName = args[0];
+		File file = new File(pathName);
+		
+		try(FileInputStream fin = new FileInputStream(file)){
+			purchase(fin);
 		} catch (Exception e) {
 			System.out.println("Error encountered while processing purchase order : " + e.getMessage());
-			log.error("Exception encountered {}", e.getMessage(), e);
+			log.error("Exception encountered {}", e);
 		}
 	}
 
